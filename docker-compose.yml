@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  web:
+    build: web/.
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://user:dbdb192618@db/db
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_PASSWORD: dbdb192618
+      POSTGRES_USER: user
+      POSTGRES_DB: db
+    volumes:
+      - "dbdata://var/lib/postgresql/data"
+
+volumes:
+  dbdata:

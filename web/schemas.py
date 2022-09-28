@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Optional
 
 from pydantic import BaseModel
@@ -18,7 +19,7 @@ class Link(BaseModel):
 
 
 class LinkCreate(BaseModel):
-    pass
+    url: str
 
 
 class LinkUpdate(BaseModel):

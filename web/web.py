@@ -3,7 +3,7 @@ import crud
 import models
 import schemas
 from sqlalchemy.orm import Session
-from queue import send_message_to_queue
+from queue_worker import send_message_to_queue
 from database import SessionLocal, engine
 
 app = FastAPI()

@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException
+from os import environ
+
+from fastapi import FastAPI, Depends, HTTPException, Request
 import crud
 import models
 import schemas
@@ -8,6 +10,7 @@ from database import SessionLocal, engine
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
+server_name = environ.get("NAME")
 
 
 def get_db():
@@ -44,3 +47,10 @@ def update_link(link_id: int, link: schemas.LinkUpdate, db: Session = Depends(ge
     if db_link is None:
         raise HTTPException(status_code=404, detail="Link not found")
     return db_link
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Server-Name"] = server_name
+    return response

@@ -5,10 +5,8 @@ x-common-variables: &common-variables
    RABBITMQ_URL: 'amqp://myuser:mqmq192618@rabbit:5672/%2F'
 
 services:
-  web:
+  web_1:
     build: web/.
-    ports:
-      - "8080:8000"
     depends_on:
       - db
     links:
@@ -16,18 +14,29 @@ services:
     environment:
       <<: *common-variables
       DATABASE_URL: postgresql://user:dbdb192618@db/db
+      NAME: web_1
+  web_2:
+    build: web/.
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      <<: *common-variables
+      DATABASE_URL: postgresql://user:dbdb192618@db/db
+      NAME: web_2
   loader:
       build: loader/.
       restart: on-failure
       depends_on:
         - rabbit
-        - web
+        - nginx
       links:
         - rabbit
-        - web
+        - nginx
       environment:
         <<: *common-variables
-        WEB_BASE_URL: 'http://web:8000'
+        WEB_BASE_URL: 'http://nginx:8000'
   db:
     image: postgres
     restart: always
@@ -53,6 +62,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - web_1
+      - web_2
+    links:
+      - web_1
+      - web_2
 volumes:
   dbdata:

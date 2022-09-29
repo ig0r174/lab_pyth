@@ -4,14 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
-unicorn = "*"
-uvicorn = "*"
-sqlalchemy = "*"
-psycopg2-binary = "*"
-alembic = "*"
-typing-extensions = "*"
 pika = "*"
+requests = "*"
 
 [dev-packages]
 

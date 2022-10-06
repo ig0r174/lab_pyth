@@ -12,6 +12,7 @@ psycopg2-binary = "*"
 alembic = "*"
 typing-extensions = "*"
 pika = "*"
+redis = "*"
 
 [dev-packages]
 

@@ -31,12 +31,14 @@ services:
       depends_on:
         - rabbit
         - nginx
+        - redis
       links:
         - rabbit
         - nginx
       environment:
         <<: *common-variables
         WEB_BASE_URL: 'http://nginx:8000'
+        CACHE_HOST: redis
   db:
     image: postgres
     restart: always
@@ -72,5 +74,7 @@ services:
     links:
       - web_1
       - web_2
+  redis:
+    image: redis
 volumes:
   dbdata:

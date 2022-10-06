@@ -1,16 +1,44 @@
 import json
 import os
 import sys
+from typing import Optional
 
 import pika
 import requests
+import redis
+
+cache = redis.Redis(host=os.environ['CACHE_HOST'])
+
+
+def fetch_status_from_internet(url: str) -> int:
+    response = requests.get(url, timeout=10)
+    status = response.status_code
+    return status
+
+
+def get_from_cache(cache_key: str) -> Optional[int]:
+    return cache.get(cache_key)
+
+
+def set_cache(cache_key: str, status_code: int) -> None:
+    cache.set(cache_key, status_code)
+
+
+def get_status(url: str) -> int:
+    cache_key = f"url-{url}"
+
+    status_code = get_from_cache(cache_key)
+    if status_code is None:
+        status_code = fetch_status_from_internet(url)
+        set_cache(cache_key, status_code)
+
+    return status_code
 
 
 def handle_message(ch, method, properties, body):
     link_json = json.loads(body.decode('utf-8'))
 
-    response = requests.get(link_json['url'], timeout=10)
-    status = response.status_code
+    status = get_status(link_json['url'])
 
     web_url = f'{os.environ["WEB_BASE_URL"]}/links/{link_json["id"]}'
     web_request_body = {
@@ -21,7 +49,6 @@ def handle_message(ch, method, properties, body):
 
 
 def main():
-    print(os.environ['RABBITMQ_URL'])
     connection = pika.BlockingConnection(pika.URLParameters(os.environ['RABBITMQ_URL']))
     channel = connection.channel()
 

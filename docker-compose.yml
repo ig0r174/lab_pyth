@@ -7,8 +7,10 @@ x-common-variables: &common-variables
 services:
   web_1:
     build: web/.
+    restart: on-failure
     depends_on:
       - db
+      - rabbit
     links:
       - db
     environment:
@@ -17,8 +19,10 @@ services:
       NAME: web_1
   web_2:
     build: web/.
+    restart: on-failure
     depends_on:
       - db
+      - rabbit
     links:
       - db
     environment:
